@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="fr">
+	<head>
+		<meta charset="utf-8">
+		<title>Polymer Beer Gallery</title>
+		<link rel="stylesheet" href="bower-component/bootstrap/dist/css/bootstrap.min.css">
+		
+		
+		  <!-- Polyfill Web Components support for older browsers -->
+		<script src="bower-component/webcomponentsjs/webcomponents-lite.min.js"></script>
+		
+		
+		<!-- Import `app-route` element -->
+		<link rel="import" href="bower-component/app-route/app-location.html">
+		<link rel="import" href="bower-component/app-route/app-route.html">
+		
+		<!-- Import `beer-list` element -->
+		<link rel="import" href="./element/beer-list.html">
+		<link rel="import" href="./element/beer-detail.html">
+		<link rel="import" href="./element/beer-create.html">
+		
+		<!-- Import iron-pages -->
+		<link rel="import" href="bower-component/iron-pages/iron-pages.html">
+	
+	</head>
+	
+	<body unresolved>
+	
+		<polymer-beers></polymer-beers>
+		
+		<dom-module id="polymer-beers">
+			<style>
+				:host {
+				display: block;
+				}
+			</style>
+			<template>
+				<app-location route="{{route}}" use-hash-as-path></app-location>
+				
+				<app-route route="{{route}}" pattern="/beers" active="{{beerListActive}}"></app-route>
+				<app-route route="{{route}}" pattern="/beer/:id" data="{{beerId}}" active="{{beerIdActive}}"></app-route>
+				<app-route route="{{route}}" pattern="/create" active="{{beerAddActive}}"></app-route>
+				<app-route route="{{route}}" pattern="/edit/:id" data="{{beerId}}" active="{{beerEditActive}}"></app-route>
+				<template is="dom-if" if="{{beerListActive}}">
+					<div class="container">
+						<beer-list></beer-list>
+					</div>
+				</template>
+				<template is="dom-if" if="{{beerIdActive}}">
+					<div class="container">
+						<beer-details id="{{beerId.id}}"></beer-details>
+					</div>
+				</template>  
+				<template is="dom-if" if="{{beerAddActive}}">
+					<div class="container">
+						<beer-create></beer-create>
+					</div>
+				</template>
+				<template is="dom-if" if="{{beerEditActive}}">
+					<div class="container">
+						<beer-create id="{{beerId.id}}"></beer-create>
+					</div>
+				</template>
+				
+			</template>
+			 
+			<script>
+				HTMLImports.whenReady(function () {
+					Polymer({
+						is: 'polymer-beers',
+						route:{
+							type: Object
+						},
+						attached: function() {
+						  
+							if (!this.route.path) {
+								console.debug("Setting initial route")
+								this.set('route.path', '/beers');
+								window.location.hash = '/beers';
+							}            
+							console.debug("Initial route", this.route.path);
+						}
+					});
+				});
+			</script>
+		</dom-module>
+	</body>
+</html>

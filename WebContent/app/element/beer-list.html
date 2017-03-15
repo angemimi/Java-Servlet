@@ -1,0 +1,128 @@
+<link rel="import" href="beer-list-item.html">
+<link rel="import" href="../bower-component/iron-ajax/iron-ajax.html">
+
+<dom-module id="beer-list">
+	<template>
+		<style>
+			.cell {
+	        	padding: 5px;
+	        	border: 1px black solid;
+      		}
+		</style>
+    	<div class="container">
+    		<div class="row">
+    			<div class="col-md-2">
+    				<a href="#/create"><h1 class="btn btn-success">Add beer</h1></a>
+    				<div>Search: <input value="{{filterText::input}}"></div>
+					<div>
+            			Sort by:
+            			<select value="{{criterium::change}}">
+              				<template is="dom-repeat" items="{{criteria}}">
+                				<option value="[[item.name]]">[[item.label]]</option>
+              				</template>
+            			</select>
+          			</div>
+          		<div>
+            	<input type="checkbox" checked="{{descendingSort::change}}" name="sortingOrder"> Descending sort
+          	</div>
+          <div>Number of results: {{currentBeers}}</div>
+    			</div>
+    			<div class="col-md-10">
+    				<div class="beers">
+          				<template 
+          					id="beerList" 
+          					is="dom-repeat" 
+          					items="{{beers}}" 
+          					filter="beerFilter" 
+          					sort="beerSorter">
+            				<beer-list-item
+            					id = "{{item.id}}"
+	            				name="{{item.name}}" 
+	            				description="{{item.description}}" 
+	            				img="{{item.img}}" 
+	            				alcohol="{{item.alcohol}}"></beer-list-item>
+          				</template>
+        			</div>
+        			<div>Number of beers in list: {{beers.length}}</div>
+    			</div>
+    		</div>
+    	</div>
+    	<iron-ajax
+	      auto
+	      url="../../beers"
+	      method='get'
+	      params='{}'
+	      handle-as="json"
+	      on-response="gotBeers"
+	      debounce-duration="300"></iron-ajax>
+	</template>
+	<script>
+		Polymer({
+		    is: 'beer-list',
+			properties: {
+				filterText: {
+          			type: String,
+          			observer: "filterTextChanged",
+          			value: ""
+        		},
+				beers:{
+			        type:Array,
+			        value: function(){ return [];}
+			    },
+			    currentBeers: {
+        			type: String,
+        			computed: "getCurrentBeers(beers, filterText)"
+      			},
+      			criterium: {
+      				type: String,
+      				observer: "criteriaChanged"
+    			},
+    			descendingSort: {
+    				type: Boolean,
+    				observer: "criteriaChanged",
+    				value: false
+  				}
+		    },
+		    ready: function(){
+		    	this.beers = [];
+		    	this.filterText = "";
+		    	this.criteria = [
+    				{ name: "name", label: "Alphabetical"},
+    				{ name: "alcohol", label: "Alcohol content" }
+  				];
+  				this.criterium = this.criteria[0].name;
+		    },
+		    filterTextChanged: function(newValue, oldValue) {
+    			this.$.beerList.render();
+  			},
+  			criteriaChanged: function(newValue, oldValue) {
+    			this.$.beerList.render();
+  			},
+  			beerFilter:  function(item) {
+          		return item.name.match(new RegExp(this.filterText, 'i'));
+      		},
+      		getCurrentBeers: function() {
+      			var current = 0;
+        		for (var i in this.beers) {
+          			if (this.beerFilter(this.beers[i])) {
+            			current++;
+          			}
+        		}
+        		return current;
+      		},
+      		beerSorter: function(a, b) {
+      			var invert = 1;
+      			if (this.descendingSort) invert = -1;
+			    if ( a[this.criterium] === b[this.criterium] ) return 0;
+        		if ( a[this.criterium] < b[this.criterium] ) return -1*invert;
+        		if ( a[this.criterium] > b[this.criterium] ) return 1*invert;
+  			},
+  			gotBeers: function(event, ironRequest) {
+  				this.beers = ironRequest.response;
+    		},
+    		gotError: function(event, ironRequest){
+        		this.error = event;
+      		}
+    	});
+	</script>
+</dom-module>

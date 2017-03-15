@@ -1,0 +1,75 @@
+<!-- Fichier pour la creation d'element (step 2) -->
+<!-- import de polymer -->
+<link rel="import" href="../bower-component/polymer/polymer.html">
+<dom-module id="beer-list-item">
+	<template>
+		<style>
+			.beer{
+				margin: 10px;
+				padding: 10px;
+				border: solid 1px black;
+				border-radius: 10px;
+				min-height: 50px;
+			    display: flex;
+    			max-width: 100%;
+			}
+			
+			.el-desc {
+				width: 100%;
+			}
+			.el-img {
+      			max-height: 100px;
+		    }
+		    .el-alcohol {
+		      	clear:both;
+		    }
+		</style>
+		<div class="beer">
+			<div class="el-desc">
+				<a href="{{url}}"><h2 class="el-name">{{name}}</h2></a>
+				<p>{{description}}</p>
+			</div>
+			<div class="">
+				<img class="el-img" src="{{img}}">
+				<p class="el-alcohol">Alcohol content: {{alcohol}}%</p>
+			</div>
+			<div>
+				<a href="#/edit/{{id}}"><h1 class="btn btn-success">Edit</h1></a>
+				<h1 class="btn btn-warning" on-click="deleteBeer">Remove</h1>
+			</div>
+		</div>
+		<iron-ajax
+      		id="deleteRequest"
+      		url="../../delete"
+      		method='post'
+      		handle-as="json"
+      		on-response="deletedBeers"
+      		debounce-duration="300"></iron-ajax>
+	</template>
+	<script>
+		Polymer({
+		    is: 'beer-list-item',
+			properties: {
+		        id: String,
+    			name: String,
+    			description: String,
+    			img: String,
+    			alcohol: String,
+  				url: {
+				    type: String,
+				    computed: "getUrl(id)"
+			    }
+		    },
+		    getUrl: function(id) {
+				return "#/beer/"+id;
+			},
+			deleteBeer: function() {
+				  this.$.deleteRequest.params = { id: this.id };
+				  this.$.deleteRequest.generateRequest();
+			},
+			deletedBeers: function(evt, ironRequest) {
+				this.fire("beer-deleted");
+		  	}
+    	});
+	</script>
+</dom-module>
