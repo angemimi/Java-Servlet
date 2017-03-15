@@ -12,10 +12,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.bson.Document;
 
 import com.beers.classes.Beer;
-import com.beers.dao.BeerDAO;
 import com.mongodb.*;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.beers.dao.BeerDAO;
 
 /**
  * Servlet implementation class Beers
